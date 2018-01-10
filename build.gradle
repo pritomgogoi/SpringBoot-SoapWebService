@@ -1,0 +1,100 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'war'
+apply plugin: 'spring-boot'
+apply plugin: 'no.nils.wsdl2java'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+war {
+    archiveName = "ROOT.war"
+  //  destinationDir = new File("${rootDir}/runway/FS_ROOT/opt/tomcat/webapps")
+}
+
+buildscript {
+    ext {
+        springBootVersion = '1.5.3.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:" + springBootVersion)
+        classpath("no.nils:wsdl2java:0.10")
+        classpath("com.kenshoo:gradle-fpm:0.5")
+    }
+}
+
+def repoCredentials = {
+    username 'developer'
+    password 'read0n1y'
+}
+
+repositories {
+    mavenCentral()
+
+    jcenter()
+
+}
+
+
+
+dependencies {
+
+    //Spring boot Dependencies
+    compile("org.springframework.boot:spring-boot-starter-actuator:" + springBootVersion)
+    compile("org.springframework.boot:spring-boot-starter-web:" + springBootVersion)
+    compile("org.springframework.boot:spring-boot-starter-web-services")
+
+    //WS DEPENDENCIES
+    compile group: 'com.sun.xml.ws', name: 'jaxws-rt', version: '2.1.4'
+    compile 'org.apache.cxf:cxf-rt-frontend-jaxws:3.1.6'
+    compile 'org.apache.cxf:cxf-rt-transports-http:3.1.6'
+
+    //JERSEY
+    compile group: 'com.sun.jersey', name: 'jersey-client', version: '1.19.4'
+    compile group:'commons-codec', name: 'commons-codec', version:'1.3'
+
+    compile group: 'org.apache.commons', name: 'commons-io', version: '1.3.2'
+
+    //APACHE COMMON
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    compile group: 'commons-logging', name: 'commons-logging', version: '1.1.1'
+    compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
+
+    testCompile group: 'junit', name: 'junit', version:'4.8.1'
+    testCompile group: 'commons-collections', name: 'commons-collections', version:'3.0'
+
+}
+
+wsdl2java{
+    generatedWsdlDir = file("my-generated-sources")
+    wsdlDir = file("$projectDir/src/main/resources/wsdl")
+    wsdlsToGenerate = [
+                          ["$projectDir/src/main/resources/wsdl/Countries.wsdl"]
+
+    ]
+    locale = Locale.getDefault()
+    stabilizeAndMergeObjectFactory = true
+
+    copy {
+        from 'my-generated-sources'
+        into 'src/main/java'
+        include '**/*.java'
+    }
+    delete 'my-generated-sources'
+}
+
+wsdl2javaExt {
+    cxfVersion = "3.1.11"
+    deleteGeneratedSourcesOnClean = true
+}
+
+clean.doFirst {
+    delete 'my-generated-sources'
+    delete 'src/main/java/net/webservicex'
+}
