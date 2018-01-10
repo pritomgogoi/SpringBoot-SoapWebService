@@ -9,7 +9,6 @@ targetCompatibility = 1.8
 
 war {
     archiveName = "ROOT.war"
-  //  destinationDir = new File("${rootDir}/runway/FS_ROOT/opt/tomcat/webapps")
 }
 
 buildscript {
